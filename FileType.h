@@ -1,19 +1,17 @@
-#pragma once
-
 #include "Headers.h"
+
+#pragma once
 
 class FileType {
 public:
 
-    std::string fileType();
+    std::string file_type();
     FileType(std::string path);
     void print();
 
 private:
 
     std::string m_path;
-    std::vector<std::string> exts;
-    std::string* identifyExtension(std::pair<std::string, std::string>& pair);
-    size_t m_check;
+    std::string* identify_extension(std::pair<std::string, std::string>& pair);
 
 };

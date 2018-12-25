@@ -7,26 +7,26 @@ int main(int argc, const char ** argv) {
 
     //=============================== Empty Check ===============================
     if (argc == 1) {
-        
         std::cerr << "Error: Invalid arguments\n";
         return EXIT_FAILURE;
-
     } else {
-
         file = std::string(argv[1]);
-
     }
 
+    //=============================== Exists Check ============================
+    FileSize fs(file);
+    if (fs.stream_size() == "NON EXISTENT") {
+    	std::cerr << "Error: File or directory does not exist\n";
+	return EXIT_FAILURE;
+    }
+	
     //=============================== File Type ===============================
     
     FileType ft(file);
-    std::cout << ft.fileType() << '\n';
-    std::cout << "\n\n";
+    std::cout << "Type: " << ft.file_type() << "\n\n";
 
     //=========================================================================
     //=============================== File Size ===============================
-
-    FileSize fs(file);
-    std::cout << fs.streamSize() << '\n';
+    std::cout << "Size: " << fs.stream_size() << '\n';
 
 }

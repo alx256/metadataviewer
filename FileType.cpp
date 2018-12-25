@@ -1,30 +1,29 @@
 #include "FileType.h"
 
-typedef std::vector<std::pair<std::string, std::string>> extensionVect;
+#include <map>
+#include <boost/filesystem.hpp>
 
 struct Extensions {
 
-    extensionVect images = {
-        std::make_pair<std::string, std::string>(".jpg", "JPEG"),
-        std::make_pair<std::string, std::string>(".png", "PNG")
+    std::map<std::string, std::string> images = {
+        std::make_pair(".jpg", "JPEG"),
+        std::make_pair(".png", "PNG")
     };
 
-    extensionVect archives = {
-        std::make_pair<std::string, std::string>(".tar.gz", "TAR"),
-        std::make_pair<std::string, std::string>(".zip", "ZIP")
+    std::map<std::string, std::string> archives = {
+        std::make_pair(".tar.gz", "TAR"),
+        std::make_pair(".zip", "ZIP")
     };
 
-    extensionVect plainText = {
-        std::make_pair<std::string, std::string>(".txt", "Plain Text")
+    std::map<std::string, std::string> plain_text = {
+        std::make_pair(".txt", "Plain Text")
     };
 
 };
 
-std::string* FileType::identifyExtension(std::pair<std::string, std::string>& pair) {
+std::string* FileType::identify_extension(std::pair<std::string, std::string>& pair) {
 
-    m_check = m_path.find(pair.first);
-
-    if (m_check != std::string::npos && m_check == m_path.size() - pair.first.size()) {
+    if (boost::filesystem::extension(m_path) == pair.first) {
         return &pair.second;
     } else {
         return nullptr;
@@ -32,18 +31,20 @@ std::string* FileType::identifyExtension(std::pair<std::string, std::string>& pa
 
 }
 
-std::string FileType::fileType() {
+std::string FileType::file_type() {
 
-    Extensions typeContainer;
-
-    for (std::pair<std::string, std::string> y : typeContainer.images)  
-    { if(identifyExtension(y) != nullptr) return *identifyExtension(y) + " Image"; }
+    Extensions type_container;
     
-    for (std::pair<std::string, std::string> y : typeContainer.archives) 
-    { if(identifyExtension(y) != nullptr) return *identifyExtension(y) + " Archive"; }
+    if (!(boost::filesystem::is_regular_file(m_path))) return "Directory";
     
-    for (std::pair<std::string, std::string> y : typeContainer.plainText) 
-    { if(identifyExtension(y) != nullptr) return *identifyExtension(y) + " File"; }
+    for (std::pair<std::string, std::string> y : type_container.images)  
+    { if(identify_extension(y) != nullptr) return *identify_extension(y) + " Image"; }
+    
+    for (std::pair<std::string, std::string> y : type_container.archives) 
+    { if(identify_extension(y) != nullptr) return *identify_extension(y) + " Archive"; }
+    
+    for (std::pair<std::string, std::string> y : type_container.plain_text) 
+    { if(identify_extension(y) != nullptr) return *identify_extension(y) + " File"; }
 
     return "Unknown Filetype";
 

@@ -1,6 +1,3 @@
-#include <algorithm>
-#include <functional>
-#include <string>
 #include <iostream>
+#include <string>
 #include <fstream>
-#include <vector>

@@ -6,10 +6,11 @@ class FileSize {
 public:
 
     FileSize(const std::string& path);
-    std::string streamSize();
+    std::string stream_size();
 
 private:
-
+    
+    std::string unit(int val);
     std::ifstream m_stream;
 
 };
