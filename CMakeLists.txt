@@ -2,16 +2,31 @@ cmake_minimum_required (VERSION 2.6)
 
 project(MetaData)
 
+find_package(Boost COMPONENTS system REQUIRED)
+find_package(Boost COMPONENTS filesystem REQUIRED)
+
 set(CMAKE_CXX_FLAGS "-std=c++17")
 
-add_executable(
-    MetaData 
-    
-    Headers.h
+include_directories(
 
-    Entry.cpp
+	${Boost_INCLUDE_DIRS}
 
-    FileType.cpp
-
-    FileSize.cpp
 )
+
+add_executable(
+    	MetaData 
+
+    	Entry.cpp
+
+    	FileType.cpp
+
+    	FileSize.cpp
+)
+
+target_link_libraries(
+	MetaData 
+	
+	${Boost_FILESYSTEM_LIBRARY}
+
+)
+
