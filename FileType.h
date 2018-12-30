@@ -1,4 +1,5 @@
 #include "Headers.h"
+#include <map>
 
 #pragma once
 
@@ -7,11 +8,10 @@ public:
 
     std::string file_type();
     FileType(std::string path);
-    void print();
 
 private:
 
     std::string m_path;
-    std::string* identify_extension(std::pair<std::string, std::string>& pair);
+    std::string* to_str(std::map<std::string, std::string> mp, std::string type);
 
 };

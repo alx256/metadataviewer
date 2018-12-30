@@ -27,6 +27,6 @@ target_link_libraries(
 	MetaData 
 	
 	${Boost_FILESYSTEM_LIBRARY}
-
+	${Boost_SYSTEM_LIBRARY}
 )
 
