@@ -18,7 +18,7 @@ add_executable(
 
     	Entry.cpp
 
-    	FileType.cpp
+    	FileInformationGeneral.cpp
 
     	FileSize.cpp
 )
