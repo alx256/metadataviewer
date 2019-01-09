@@ -8,6 +8,8 @@
 #define PLAT_WIN
 #endif
 
+#include <boost/filesystem.hpp>
+
 std::vector<std::string> flags;
 
 bool flag_passed(std::string flg) {
@@ -24,9 +26,16 @@ int main(int argc, const char ** argv) {
         std::vector<std::string> flags_args, possible_flags_strings = {"-recursive", "-ignore"};
         std::vector<char> possible_flags_chars = {'r', 'i'};
 
+        // NOTE: Currently coloured text is set to only support Unix terminals. 
+        // TODO: Add Windows coloured text support
+
         //=============================== Empty Check ===========================
         if (argc == 1) {
+                #ifndef PLAT_WIN
+                std::cerr << "\x1B[31mError: Invalid arguments\x1B[1m\n";
+                #else
                 std::cerr << "Error: Invalid arguments\n";
+                #endif
                 return EXIT_FAILURE;
         } else {
                 file = std::string(argv[argc - 1]);
@@ -39,7 +48,11 @@ int main(int argc, const char ** argv) {
 
         for (std::string y : flags_args) { 
                 if (y[0] != '-') {
+                        #ifndef PLAT_WIN
+                        std::cerr << "\x1B[31mError: Invalid flag '" << y << "'\x1B[0m\n";
+                        #else
                         std::cerr << "Error: Invalid flag '" << y << "'\n";
+                        #endif
                         return EXIT_FAILURE;
         }
 
@@ -48,7 +61,11 @@ int main(int argc, const char ** argv) {
         if (std::find(std::begin(possible_flags_strings), std::end(possible_flags_strings), y) == std::end(possible_flags_strings)) {
                 for (char x : y) {
                         if (std::find(std::begin(possible_flags_chars), std::end(possible_flags_chars), x) == std::end(possible_flags_chars)) {
-                                std::cerr << "Error: Invalid flag '-" << y << "'\n";
+                                #ifndef PLAT_WIN
+                                std::cerr << "\x1B[31mError: Invalid flag '" << y << "'\x1B[0m\n";
+                                #else
+                                std::cerr << "Error: Invalid flag '" << y << "'\n";
+                                #endif
                                 return EXIT_FAILURE;
                         } else {
                                 flags.push_back("-" + std::string(1, x));
@@ -63,7 +80,17 @@ int main(int argc, const char ** argv) {
         FileInformationGeneral fig(file);
         FileSize fs(file);
 
+        if (!boost::filesystem::exists(file)) {
+                #ifndef PLAT_WIN
+                std::cout << "\x1B[31mError: File or Directory does not exist\x1B[0m\n";
+                #else
+                std::cout << "Error: File or Directory does not exist\n";
+                #endif
+                return EXIT_FAILURE;
+        }
+
         std::string type = fig.file_type(), lod = fig.last_opened_date(), perms = fig.permissions(), size;
+
         if (type == "Directory")
                 if (flag_passed("-r") || flag_passed("--recursive"))
                         size = fs.directory_size();
@@ -71,11 +98,6 @@ int main(int argc, const char ** argv) {
                         size = "Not Calculated";
         else
                 size = fs.file_size();
-        //=============================== Exists Check ==========================
-        if (size == "NON EXISTENT") {
-                std::cout << "Error: File or Directory does not exist\n";
-                return EXIT_FAILURE;
-        }
         //=========================== Directory Warning ===========================
         #ifndef PLAT_WIN
         if (type == "Directory" && !(flag_passed("-i") || flag_passed("--ignore") || flag_passed("-r") || flag_passed("--recursive")))
@@ -92,8 +114,13 @@ int main(int argc, const char ** argv) {
         #endif
 
         if ((flag_passed("-r") || flag_passed("--recursive")) && size == "perm_denied") {
-                std::cerr << "Error: Ecountered Permssion Denied while calculating file size.\n" <<
-                "Please try running as root.\n"; 
+                #ifndef PLAT_WIN
+                std::cerr << "\x1B[31mError: Ecountered Permssion Denied while calculating file size\n" <<
+                "Please try running as root\x1B[0m\n"; 
+                #else
+                std::cer << "Error: Encountered Permission Denied while calculating file size\n" <<
+                "Please try running as root\n";
+                #endif
                 return EXIT_FAILURE;
         }
         //=============================== File Type =============================    

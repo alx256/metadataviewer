@@ -17,6 +17,8 @@
 
 struct stat st;
 
+bool FileInformationGeneral::exists() { return boost::filesystem::exists(m_path); }
+
 std::string FileInformationGeneral::file_type() {
 
         using file_pair = std::pair<std::string, std::string>;
@@ -24,7 +26,9 @@ std::string FileInformationGeneral::file_type() {
         Extensions type_container;
 
         if (boost::filesystem::is_directory(m_path)) return "Directory";
-    
+        
+        // TODO: Possibly optimise algorithm?
+
         for (auto y : type_container.format)
                 for (auto x : y.first)
                         if (boost::filesystem::extension(m_path) == x.first)
