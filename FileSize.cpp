@@ -6,26 +6,42 @@
 
 #include <boost/filesystem.hpp>
 
-FileSize::FileSize(const std::string& path): m_stream(path, std::ifstream::ate | std::ifstream::binary), m_path(path) {}
+FileSize::FileSize(const std::string& path): m_path(path) {}
 
-std::string FileSize::stream_size() { return (m_stream.tellg() != -1) ? unit(m_stream.tellg()) : "NON EXISTENT"; }
+std::string FileSize::file_size() { 
+	
+	if (boost::filesystem::is_directory(m_path)) {
+		return "DIRECTORY";
+	} else {
+		if (!boost::filesystem::exists(m_path)) {
+			return "NON EXISTENT";	
+		} else {
+			return unit(boost::filesystem::file_size(m_path));
+		}
+	}
+	 
+}
 
 std::string FileSize::directory_size() {
 	
-	size_t size;
-	
-	for (boost::filesystem::recursive_directory_iterator rdi(m_path);
-	rdi != boost::filesystem::recursive_directory_iterator();
-	++rdi) {
-		if (!boost::filesystem::is_directory(*rdi))
-		size += boost::filesystem::file_size(*rdi);
+	size_t size = 0u;
+        boost::filesystem::path pth(m_path);
+	try {
+		for (auto const& file : boost::filesystem::recursive_directory_iterator(pth)) {
+                        if (boost::filesystem::is_regular_file(file)) size += boost::filesystem::file_size(file);
+                }
+        } catch (const boost::filesystem::filesystem_error& ex) {
+		if((std::string(ex.what()).find("Permission denied") != std::string::npos) ||
+		std::string(ex.what()).find("Operation not permitted") != std::string::npos) {
+			return "perm_denied";
+		}
 	}
 	
 	return unit(size);
-
+	
 }
 
-std::string FileSize::unit(int val) {
+std::string FileSize::unit(size_t val) {
 	
 	long double cal = 1000;	
 	std::stringstream fin;
