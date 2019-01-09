@@ -87,7 +87,7 @@ int main(int argc, const char ** argv) {
         if (type == "Directory" && !(flag_passed("-i") || flag_passed("--ignore")))
         std::cout << 
         "Warning: Directory size will not be calculated because it can take some time with larger directories." <<
-        " If you want the size to be calculated, please pass the flaf '-r' or '--recursive' or use the flag '-i' or '--ignore' to silence this warning." <<
+        " If you want the size to be calculated, please pass the flag '-r' or '--recursive' or use the flag '-i' or '--ignore' to silence this warning." <<
         '\n';
         #endif
 
