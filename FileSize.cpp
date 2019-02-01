@@ -1,3 +1,4 @@
+#include "Headers.h"
 #include "FileSize.h"
 
 #include <fstream>
@@ -10,7 +11,9 @@ FileSize::FileSize(const std::string& path): m_path(path) {}
 
 std::string FileSize::file_size() { 
 	
-	if (boost::filesystem::is_directory(m_path)) {
+        if (boost::filesystem::is_symlink(m_path)) {
+                return "Not Calculated";
+        } else if (boost::filesystem::is_directory(m_path)) {
 		return "DIRECTORY";
 	} else {
 		if (!boost::filesystem::exists(m_path)) {
@@ -24,7 +27,8 @@ std::string FileSize::file_size() {
 
 std::string FileSize::directory_size() {
 	
-	size_t size = 0u;
+	std::uintmax_t size = 0;
+
         boost::filesystem::path pth(m_path);
 	try {
 		for (auto const& file : boost::filesystem::recursive_directory_iterator(pth)) {
@@ -37,8 +41,10 @@ std::string FileSize::directory_size() {
 		}
 	}
 	
+        int items;
+
 	return unit(size);
-	
+
 }
 
 std::string FileSize::unit(size_t val) {

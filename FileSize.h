@@ -1,5 +1,3 @@
-#include "Headers.h"
-
 #pragma once
 
 class FileSize {
@@ -12,6 +10,7 @@ public:
 private:
     
     std::string unit(size_t val);
+    std::string formatted(int num);
     std::string m_path;
     
 };

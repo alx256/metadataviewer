@@ -1,3 +1,4 @@
+#include "Headers.h"
 #include "FileInformationGeneral.h"
 #include "Extensions.h"
 
@@ -25,6 +26,7 @@ std::string FileInformationGeneral::file_type() {
     
         Extensions type_container;
 
+        if (boost::filesystem::is_symlink(m_path)) return "Symbolic Link";
         if (boost::filesystem::is_directory(m_path)) return "Directory";
         
         // TODO: Possibly optimise algorithm?
@@ -71,6 +73,14 @@ std::string FileInformationGeneral::last_opened_date() {
         
         return "Unkown";
     
+}
+
+std::string FileInformationGeneral::preview(std::string file_type) {
+        
+        if (file_type == "Plain Text File" || file_type == "Log File") {
+                
+        }
+
 }
 
 FileInformationGeneral::FileInformationGeneral(std::string path): m_path(path) {}

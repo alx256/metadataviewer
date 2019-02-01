@@ -1,5 +1,3 @@
-#include "Headers.h"
-
 #include <map>
 
 #pragma once
@@ -10,6 +8,7 @@ public:
         std::string file_type();
         std::string last_opened_date();
         std::string permissions();
+        std::string preview(std::string file_type);
         bool exists();
         FileInformationGeneral(std::string path);
 

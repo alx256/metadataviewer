@@ -1,12 +1,11 @@
+#include "Headers.h"
 #include "FileInformationGeneral.h"
 #include "FileSize.h"
+#include "Command.h"
 
 #include <vector>
 #include <algorithm>
-
-#if defined(_WIN32) || defined(_WIN64) || defined(WIN32) || defined(WIN64)
-#define PLAT_WIN
-#endif
+#include <sstream>
 
 #include <boost/filesystem.hpp>
 
@@ -25,17 +24,15 @@ int main(int argc, const char ** argv) {
         std::string file;
         std::vector<std::string> flags_args, possible_flags_strings = {"-recursive", "-ignore"};
         std::vector<char> possible_flags_chars = {'r', 'i'};
+        Command_Exception_Presets pres;
 
         // NOTE: Currently coloured text is set to only support Unix terminals. 
         // TODO: Add Windows coloured text support
 
         //=============================== Empty Check ===========================
         if (argc == 1) {
-                #ifndef PLAT_WIN
-                std::cerr << "\x1B[31mError: Invalid arguments\x1B[1m\n";
-                #else
-                std::cerr << "Error: Invalid arguments\n";
-                #endif
+                pres.exception_invalid_arguments_error.report();
+                pres.exception_help_message.report();
                 return EXIT_FAILURE;
         } else {
                 file = std::string(argv[argc - 1]);
@@ -48,11 +45,7 @@ int main(int argc, const char ** argv) {
 
         for (std::string y : flags_args) { 
                 if (y[0] != '-') {
-                        #ifndef PLAT_WIN
-                        std::cerr << "\x1B[31mError: Invalid flag '" << y << "'\x1B[0m\n";
-                        #else
-                        std::cerr << "Error: Invalid flag '" << y << "'\n";
-                        #endif
+                        Command_Exception("Invalid Flag '" + y + '\'', "error").report();
                         return EXIT_FAILURE;
         }
 
@@ -61,11 +54,7 @@ int main(int argc, const char ** argv) {
         if (std::find(std::begin(possible_flags_strings), std::end(possible_flags_strings), y) == std::end(possible_flags_strings)) {
                 for (char x : y) {
                         if (std::find(std::begin(possible_flags_chars), std::end(possible_flags_chars), x) == std::end(possible_flags_chars)) {
-                                #ifndef PLAT_WIN
-                                std::cerr << "\x1B[31mError: Invalid flag '" << y << "'\x1B[0m\n";
-                                #else
-                                std::cerr << "Error: Invalid flag '" << y << "'\n";
-                                #endif
+                                Command_Exception("Invalid Flag '" + y + '\'', "error").report();
                                 return EXIT_FAILURE;
                         } else {
                                 flags.push_back("-" + std::string(1, x));
@@ -81,11 +70,7 @@ int main(int argc, const char ** argv) {
         FileSize fs(file);
 
         if (!boost::filesystem::exists(file)) {
-                #ifndef PLAT_WIN
-                std::cout << "\x1B[31mError: File or Directory does not exist\x1B[0m\n";
-                #else
-                std::cout << "Error: File or Directory does not exist\n";
-                #endif
+                pres.exception_non_existent_error.report();
                 return EXIT_FAILURE;
         }
 
@@ -99,33 +84,17 @@ int main(int argc, const char ** argv) {
         else
                 size = fs.file_size();
         //=========================== Directory Warning ===========================
-        #ifndef PLAT_WIN
-        if (type == "Directory" && !(flag_passed("-i") || flag_passed("--ignore") || flag_passed("-r") || flag_passed("--recursive")))
-        std::cout << 
-        "\x1B[33mWarning: Directory size will not be calculated because it can take some time with larger directories." <<
-        " If you want the size to be calculated, please pass the flag '-r' or '--recursive' or use the flag '-i' or '--ignore' to silence this warning.\x1B[0m" <<
-        '\n';
-        #else
-        if (type == "Directory" && !(flag_passed("-i") || flag_passed("--ignore")))
-        std::cout << 
-        "Warning: Directory size will not be calculated because it can take some time with larger directories." <<
-        " If you want the size to be calculated, please pass the flag '-r' or '--recursive' or use the flag '-i' or '--ignore' to silence this warning." <<
-        '\n';
-        #endif
+        if (!(flag_passed("-r") || flag_passed("-i") || flag_passed("--recursive") || flag_passed("--ignore")) 
+        && boost::filesystem::is_directory(file))
+                pres.exception_directory_warning.report();
 
         if ((flag_passed("-r") || flag_passed("--recursive")) && size == "perm_denied") {
-                #ifndef PLAT_WIN
-                std::cerr << "\x1B[31mError: Ecountered Permssion Denied while calculating file size\n" <<
-                "Please try running as root\x1B[0m\n"; 
-                #else
-                std::cer << "Error: Encountered Permission Denied while calculating file size\n" <<
-                "Please try running as root\n";
-                #endif
+                pres.exception_permisssion_denied_error.report();
                 return EXIT_FAILURE;
         }
         //=============================== File Type =============================    
         std::cout << "Type: " << type << '\n';
-        //============================= File Last Opened ========================
+        //============================= File Last Modified ========================
         std::cout << "Date Last Modified: " << lod << '\n';
         //============================== Permissions ============================
         std::cout << "Permissions: " << perms << '\n';
