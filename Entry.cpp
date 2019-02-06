@@ -62,7 +62,7 @@ int main(int argc, const char ** argv) {
                                 pres.exception_help_message.report();
                                 return EXIT_SUCCESS;
                         } else {
-                                Command_Exception("Invalid Flag '" + std::string(argv[argc - 1]) + '\'', "error").report();
+                                pres.exception_flags_error(std::string(argv[argc - 1]));
                                 return EXIT_FAILURE;
                         }
                 }
@@ -70,14 +70,14 @@ int main(int argc, const char ** argv) {
 
         for (std::string y : flags_args) { 
                 if (y[0] != '-') {
-                        Command_Exception("Invalid Flag '" + y + '\'', "error").report();
+                        pres.exception_flags_error(y);
                         return EXIT_FAILURE;
                 }
         }
 
         for (std::string y : flags_args) { 
                 if (y[0] != '-') {
-                        Command_Exception("Invalid Flag '" + y + '\'', "error").report();
+                        pres.exception_flags_error(y);
                         return EXIT_FAILURE;
                 
                 }
@@ -87,7 +87,7 @@ int main(int argc, const char ** argv) {
                 if (std::find(std::begin(possible_flags_strings), std::end(possible_flags_strings), y) == std::end(possible_flags_strings)) {
                         for (char x : y) {
                                 if (std::find(std::begin(possible_flags_chars), std::end(possible_flags_chars), x) == std::end(possible_flags_chars)) {
-                                        Command_Exception("Invalid Flag '" + y + '\'', "error").report();
+                                        pres.exception_flags_error(y);
                                         return EXIT_FAILURE;
                                 } else {
                                         flags.push_back("-" + std::string(1, x));
@@ -114,8 +114,6 @@ int main(int argc, const char ** argv) {
         }
 
         std::string type = fig.file_type(), lod = fig.last_opened_date(), perms = fig.permissions(), size;
-
-        std::cout << "Made it here" << std::endl;
 
         if (type == "Directory")
                 if (flag_passed("-r") || flag_passed("--recursive"))

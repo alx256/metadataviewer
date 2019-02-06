@@ -71,6 +71,10 @@ struct Command_Exception_Presets {
 
         }
 
+        void exception_flags_error(std::string flag) {
+                Command_Exception("Invalid flag '" + flag + '\'', "error").report();
+        }
+
         private:
         std::stringstream directory_war;
         std::stringstream help_mess;
