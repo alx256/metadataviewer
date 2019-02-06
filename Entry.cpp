@@ -22,7 +22,8 @@ bool flag_passed(std::string flg) {
 int main(int argc, const char ** argv) {
 
         std::string file;
-        std::vector<std::string> flags_args, possible_flags_strings = {"-recursive", "-ignore"};
+        std::vector<std::string> flags_args, possible_flags_strings = {"-recursive", "-ignore", "-help"},
+        single_flags = {"--help"};
         std::vector<char> possible_flags_chars = {'r', 'i'};
         Command_Exception_Presets pres;
 
@@ -35,36 +36,74 @@ int main(int argc, const char ** argv) {
                 pres.exception_help_message.report();
                 return EXIT_FAILURE;
         } else {
-                file = std::string(argv[argc - 1]);
+                if (argv[argc - 1][0] != '-') { file = argv[argc - 1]; } else { file.clear(); }
         }
+
         //=============================== Flag Setup ===========================
+        // if (argc > 2 || file.empty()) {
+        //         for (int i = 2; i <= (file.empty()) ? argc : argc - 1; ++i) {
+        //                 flags_args.push_back(argv[i - 1]);
+        //                 if (file.empty() && (std::find(single_flags.begin(), single_flags.end(), argv[i - 1]) != single_flags.end())) {
+        //                         for (std::string y : single_flags) {
+        //                                 if (argv[i - 1] == y) {
+        //                                         break;
+        //                                 }
+        //                         }
+        //                 }
+        //         }
+        // }
+
         if (argc > 2) {
                 for (int i = 2; i <= argc - 1; ++i)
                         flags_args.push_back(argv[i - 1]);
+        } else {
+                for (std::string y : single_flags) {
+                        if (std::string(argv[argc - 1]).find(y) != std::string::npos) {
+                                pres.exception_help_message.report();
+                                return EXIT_SUCCESS;
+                        } else {
+                                Command_Exception("Invalid Flag '" + std::string(argv[argc - 1]) + '\'', "error").report();
+                                return EXIT_FAILURE;
+                        }
+                }
         }
 
         for (std::string y : flags_args) { 
                 if (y[0] != '-') {
                         Command_Exception("Invalid Flag '" + y + '\'', "error").report();
                         return EXIT_FAILURE;
+                }
         }
 
-        y.erase(0, 1);
-
-        if (std::find(std::begin(possible_flags_strings), std::end(possible_flags_strings), y) == std::end(possible_flags_strings)) {
-                for (char x : y) {
-                        if (std::find(std::begin(possible_flags_chars), std::end(possible_flags_chars), x) == std::end(possible_flags_chars)) {
-                                Command_Exception("Invalid Flag '" + y + '\'', "error").report();
-                                return EXIT_FAILURE;
-                        } else {
-                                flags.push_back("-" + std::string(1, x));
-                        }
+        for (std::string y : flags_args) { 
+                if (y[0] != '-') {
+                        Command_Exception("Invalid Flag '" + y + '\'', "error").report();
+                        return EXIT_FAILURE;
+                
                 }
-        } else {
+
+                y.erase(0, 1);
+
+                if (std::find(std::begin(possible_flags_strings), std::end(possible_flags_strings), y) == std::end(possible_flags_strings)) {
+                        for (char x : y) {
+                                if (std::find(std::begin(possible_flags_chars), std::end(possible_flags_chars), x) == std::end(possible_flags_chars)) {
+                                        Command_Exception("Invalid Flag '" + y + '\'', "error").report();
+                                        return EXIT_FAILURE;
+                                } else {
+                                        flags.push_back("-" + std::string(1, x));
+                                }
+                        }
+                } else {
                         flags.push_back("-" + y); 
                 }
         }
-        
+        //=========================== Single Flag Actions =======================
+        if (file.empty()) {
+                if (flag_passed("--help")) {
+                        pres.exception_help_message.report();
+                }
+                return EXIT_SUCCESS;
+        }
         //=============================== Variable Setup ========================
         FileInformationGeneral fig(file);
         FileSize fs(file);
@@ -76,6 +115,8 @@ int main(int argc, const char ** argv) {
 
         std::string type = fig.file_type(), lod = fig.last_opened_date(), perms = fig.permissions(), size;
 
+        std::cout << "Made it here" << std::endl;
+
         if (type == "Directory")
                 if (flag_passed("-r") || flag_passed("--recursive"))
                         size = fs.directory_size();
@@ -83,6 +124,11 @@ int main(int argc, const char ** argv) {
                         size = "Not Calculated";
         else
                 size = fs.file_size();
+        //============================  Help Message ==============================
+        if (flag_passed("--help")) {
+                pres.exception_help_message.report();
+                return EXIT_SUCCESS;
+        }
         //=========================== Directory Warning ===========================
         if (!(flag_passed("-r") || flag_passed("-i") || flag_passed("--recursive") || flag_passed("--ignore")) 
         && boost::filesystem::is_directory(file))
