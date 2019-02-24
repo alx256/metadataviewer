@@ -62,13 +62,14 @@ struct Command_Exception_Presets {
                 << "If you want the size to be calculated, please pass the flag '-r' or '--recursive' or use the flag '-i' or '--ignore' to silence this warning.";
 
                 help_mess <<
-                "Usage: MetaData [File1] [...]  Gives information about a file\n\n" <<
+                "Usage: MetaData <Optional Flags> [File1] [...]  Gives information about a file\n\n" <<
+                "Flags:\n" << 
+                "--help                         Gives usage information\n" << 
                 "-r / --recursive               Runs recursive search through directories\n" <<
                 "-i / --ignore                  Ignores warnings";
 
                 exception_directory_warning = Command_Exception(directory_war.str(), "warning");
                 exception_help_message = Command_Exception(help_mess.str(), "message");
-
         }
 
         void exception_flags_error(std::string flag) {
