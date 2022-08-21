@@ -15,7 +15,10 @@ inline bool flag_passed(std::string flg) {
         return (std::find(std::begin(flags), std::end(flags), flg) != std::end(flags)) ? true : false; 
 }
 
-int setup_flags() {
+int setup_flags(Command_Exception_Presets pres) {
+        std::vector<std::string> possible_flags_strings = {"-recursive", "-ignore", "-help"};
+        std::vector<char> possible_flags_chars = {'r', 'i'};
+
         for (std::string y : flags_args) { 
                 if (y[0] != '-') {
                         pres.exception_flags_error(y);
@@ -51,10 +54,8 @@ int main(int argc, const char ** argv) {
 
         std::vector<std::string> files;
         // std::string file;
-        std::vector<std::string> possible_flags_strings = {"-recursive", "-ignore", "-help"},
-        single_flags = {"--help"};
+        std::vector<std::string> single_flags = {"--help"};
         bool flags_used;
-        std::vector<char> possible_flags_chars = {'r', 'i'};
         Command_Exception_Presets pres;
 
         // NOTE: Currently coloured text is set to only support Unix terminals. 
@@ -80,7 +81,7 @@ int main(int argc, const char ** argv) {
                         flags_args.push_back(argv[i - 1]);
         } else {
                 if (argv[1][0] == '-') {
-                        setup_flags();
+                        setup_flags(pres);
 
                         for (std::string y : single_flags) {
                                 if (std::string(argv[argc - 1]).find(y) != std::string::npos) {
@@ -92,7 +93,7 @@ int main(int argc, const char ** argv) {
                                 }
                         }
                 } else {
-                        setup_flags();
+                        setup_flags(pres);
                 }
         }
         //=============================== Variable Setup ========================

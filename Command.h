@@ -46,7 +46,8 @@ public:
 };
 
 struct Command_Exception_Presets {
-        
+        Command_Exception_Presets(Command_Exception_Presets& cep) {}
+
         Command_Exception exception_non_existent_error  = Command_Exception("File or directory does not exist", "error");
         Command_Exception exception_permisssion_denied_error = Command_Exception(
                 "Encountered Permission Denied while calculating file size.\nPlease try running as root", "error"
